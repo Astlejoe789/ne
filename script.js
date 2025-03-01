@@ -1,38 +1,30 @@
-const apiKey = "98479f293e804a419d051259e5f39758"; // Replace with your actual API key
-const newsContainer = document.getElementById("news-container");
+const apiKey = "98479f293e804a419d051259e5f39758"; // Replace with your real API key
+const apiUrl = `https://newsapi.org/v2/top-headlines?country=us&apiKey=${98479f293e804a419d051259e5f39758}`;
 
-// Fetch news from NewsAPI
 async function fetchNews() {
     try {
-        const response = await fetch(`https://newsapi.org/v2/top-headlines?country=us&apiKey=${apiKey}`);
+        const response = await fetch(apiUrl);
         const data = await response.json();
+
+        if (response.status === 401) {
+            console.error("Error: Invalid API Key");
+            return;
+        } else if (response.status === 429) {
+            console.error("Error: Too many requests. Try again later.");
+            return;
+        } else if (response.status === 426) {
+            console.error("Error 426: Upgrade Required - Ensure you're using HTTPS.");
+            return;
+        }
 
         if (data.articles) {
             displayNews(data.articles);
         } else {
-            newsContainer.innerHTML = "<p>No news available</p>";
+            console.error("No news available.");
         }
     } catch (error) {
         console.error("Error fetching news:", error);
-        newsContainer.innerHTML = "<p>Failed to load news. Check console for details.</p>";
     }
 }
 
-// Function to display news
-function displayNews(articles) {
-    newsContainer.innerHTML = ""; // Clear previous news
-    articles.forEach(article => {
-        const newsItem = document.createElement("div");
-        newsItem.classList.add("news-item");
-        newsItem.innerHTML = `
-            <h2>${article.title}</h2>
-            <p>${article.description || "No description available"}</p>
-            <a href="${article.url}" target="_blank">Read more</a>
-        `;
-        newsContainer.appendChild(newsItem);
-    });
-}
-
-// Call the function to load news
 fetchNews();
-
